@@ -1,10 +1,14 @@
 import React, {useEffect} from 'react';
 import ReactDOM from 'react-dom'
 import './index.css';
+import moment from 'moment';
+
+const hostName = window.location.hostname;
+window.moment = require('moment')
 
 export function NameForm(props) {
     const [name, setName] = React.useState("");
-    const [date, setDate] = React.useState('2021-07-12')
+    const [date, setDate] = React.useState(moment().format('YYYY-MM-DD'))
 
     const handleSubmit = (evt) => {
         const requestOptions = {
@@ -12,7 +16,7 @@ export function NameForm(props) {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({name: name, dueDate: date})
         };
-        fetch("http://localhost:3000/task/add", requestOptions)
+        fetch(`http://${hostName}:3000/task/add`, requestOptions)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -50,7 +54,7 @@ function CheckItem(props) {
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({id: props.item.id, value: newValue ? 1 : 0})
         };
-        fetch("http://localhost:3000/task/changeStatus", requestOptions)
+        fetch(`http://${hostName}:3000/task/changeStatus`, requestOptions)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -73,7 +77,7 @@ function ToDoList(props) {
     const [items, setItems] = React.useState([])
 
     useEffect(() => {
-        fetch("http://localhost:3000/today")
+        fetch(`http://${hostName}:3000/today`)
             .then(res => res.json())
             .then(
                 (result) => {
