@@ -2,13 +2,13 @@
   "name": "api",
   "version": "1.0.0",
   "description": "rest api for selfDrivingMe",
-  "main": "src/index.js",
+  "main": "src/start.js",
   "scripts": {
-    "start": "node src/index.js",
+    "start": "node src/start.js",
     "client": "cd ../front && npm start",
     "server": "npm start",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "test": "jest"
+    "test": "NODE_ENV=test jest"
   },
   "author": "",
   "license": "ISC",
