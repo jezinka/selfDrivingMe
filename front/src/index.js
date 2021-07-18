@@ -83,10 +83,10 @@ function getDayName(day) {
 }
 
 function listForWeek(items, day) {
-    return <Grid>
+    return <Grid columns={1}>
         <Grid.Row style={{padding: 10}}>{getDayName(day)} ({(day.format('DD-MM-YYYY'))})</Grid.Row>
         {items.map((item) => {
-            return <Grid.Row><Grid.Column><CheckItem key={item.id} item={item}/></Grid.Column></Grid.Row>
+            return <Grid.Column><CheckItem key={item.id} item={item}/></Grid.Column>
         })}
     </Grid>;
 }
@@ -192,13 +192,13 @@ function TaskList(props) {
     } else if (!isLoaded) {
         return <div>Ładowanie...</div>;
     } else {
-        return <Grid>
+        return <Grid columns={1}>
             {items.map((item) => {
-                return <Grid.Row><Grid.Column><Checkbox toggle key={item.id}
-                                                        label={item.name}
-                                                        id={item.id}
-                                                        value='daily'
-                                                        onChange={handleChange}/></Grid.Column></Grid.Row>
+                return <Grid.Column><Checkbox toggle key={item.id}
+                                              label={item.name}
+                                              id={item.id}
+                                              value='daily'
+                                              onChange={handleChange}/></Grid.Column>
             })}
         </Grid>;
     }
