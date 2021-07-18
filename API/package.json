@@ -15,7 +15,8 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.17.1",
-    "sqlite3": "^5.0.2"
+    "sqlite3": "^5.0.2",
+    "moment": "^2.29.1"
   },
   "devDependencies": {
     "concurrently": "^6.2.0",

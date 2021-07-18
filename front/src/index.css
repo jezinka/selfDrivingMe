@@ -10,3 +10,7 @@ ol, ul {
 form {
     padding: 30px 0;
 }
+
+.ui.grid {
+    min-height: 300px;
+}

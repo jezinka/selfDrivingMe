@@ -5,10 +5,12 @@ import {Checkbox, Grid, Tab} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
 
 const hostName = window.location.hostname;
-window.moment = require('moment')
+
+window.moment = require('moment');
+var _ = require('lodash');
 
 const panes = [
-    {menuItem: 'Na dzisiaj', render: () => <Tab.Pane><ToDoList/></Tab.Pane>},
+    {menuItem: 'Tydzień', render: () => <Tab.Pane><ToDoList/></Tab.Pane>},
     {
         menuItem: 'Taski',
         render: () => <Tab.Pane>
@@ -54,7 +56,7 @@ function CheckItem(props) {
     const [checked, setChecked] = React.useState(props.item.isDone !== 0);
 
     const handleChange = () => {
-        var newValue = !checked;
+        const newValue = !checked;
         setChecked(newValue);
         const requestOptions = {
             method: 'POST',
@@ -76,13 +78,38 @@ function CheckItem(props) {
     return <Checkbox toggle label={props.item.name} checked={checked} onChange={handleChange}/>
 }
 
+function getDayName(day) {
+    return (new Date(day)).toLocaleDateString('pl-PL', {weekday: 'long'});
+}
+
+function listForWeek(items, day) {
+    return <Grid>
+        <Grid.Row style={{padding: 10}}>{getDayName(day)} ({(day.format('DD-MM-YYYY'))})</Grid.Row>
+        {items.map((item) => {
+            return <Grid.Row><Grid.Column><CheckItem key={item.id} item={item}/></Grid.Column></Grid.Row>
+        })}
+    </Grid>;
+}
+
+function summary(items) {
+    return <Grid>
+        <Grid.Row>Summary</Grid.Row>
+    </Grid>;
+}
+
+function getItemsForDate(items, date) {
+    return window._.filter(items, function (i) {
+        return i.dueDate == date.format('YYYY-MM-DD')
+    });
+}
+
 function ToDoList(props) {
     const [error, setError] = React.useState(null)
     const [isLoaded, setIsLoaded] = React.useState(false)
     const [items, setItems] = React.useState([])
 
     useEffect(() => {
-        fetch(`http://${hostName}:3000/today`)
+        fetch(`http://${hostName}:3000/week`)
             .then(res => res.json())
             .then(
                 (result) => {
@@ -103,11 +130,17 @@ function ToDoList(props) {
 
     } else if (!isLoaded) {
         return <div>Ładowanie...</div>;
-    } else {
-        return <Grid>
-            {items.map((item) => {
-                return <Grid.Row><Grid.Column><CheckItem key={item.id} item={item}/></Grid.Column></Grid.Row>
+    } else if (items) {
+        var date = window.moment().startOf('isoWeek');
+        return <Grid columns={4} celled>
+            {window._.times(7, (t) => {
+                if (t !== 0) {
+                    date.add(1, 'd');
+                }
+                var itemsForDate = getItemsForDate(items, date);
+                return <Grid.Column>{listForWeek(itemsForDate, date)}</Grid.Column>
             })}
+            <Grid.Column>{summary(items)}</Grid.Column>
         </Grid>;
     }
 }
