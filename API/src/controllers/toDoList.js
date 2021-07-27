@@ -1,7 +1,8 @@
 const moment = require("moment");
+
 const today = (req, res, next) => {
 
-    let sql = `SELECT id, name, is_done isDone
+    let sql = `SELECT id, name, is_done isDone, type, is_habit isHabit
                FROM todo_list
                where date(datetime(due_date / 1000, 'unixepoch')) = date('now')`;
 
@@ -21,7 +22,8 @@ const week = (req, res, next) => {
 
     let sql = `SELECT id, name, is_done isDone, date(datetime(due_date / 1000, 'unixepoch')) dueDate
                FROM todo_list
-               where date(datetime(due_date / 1000, 'unixepoch')) between '${startOfWeek}' and '${endOfWeek}'`;
+               where date(datetime(due_date / 1000, 'unixepoch')) between '${startOfWeek}' and '${endOfWeek}'
+                 and is_habit = 1`;
 
     req.app.db.all(sql, [], (err, rows) => {
         if (err) {

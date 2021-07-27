@@ -3,18 +3,22 @@ import ReactDOM from 'react-dom'
 import './index.css';
 import {Checkbox, Grid, Tab} from 'semantic-ui-react';
 import 'semantic-ui-css/semantic.min.css';
+import moment from "moment/moment";
+import TodayTasks from "./todayTasks";
+import {CheckItem} from "./checkItem";
+import AddTaskModal from "./modal";
 
 const hostName = window.location.hostname;
 
-window.moment = require('moment');
 var _ = require('lodash');
 
 const panes = [
     {menuItem: 'Tydzień', render: () => <Tab.Pane><ToDoList/></Tab.Pane>},
+    {menuItem: 'Dziś', render: () => <Tab.Pane><TodayTasks/></Tab.Pane>},
     {
         menuItem: 'Taski',
         render: () => <Tab.Pane>
-            <div><TaskList/><NameForm/></div>
+            <div><TaskList/><AddTaskModal/></div>
         </Tab.Pane>
     },
     {menuItem: 'Habit tracker', render: () => <Tab.Pane>Tab 3 Content</Tab.Pane>},
@@ -51,33 +55,6 @@ export function NameForm(props) {
     );
 }
 
-
-function CheckItem(props) {
-    const [checked, setChecked] = React.useState(props.item.isDone !== 0);
-
-    const handleChange = () => {
-        const newValue = !checked;
-        setChecked(newValue);
-        const requestOptions = {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({id: props.item.id, value: newValue ? 1 : 0})
-        };
-        fetch(`http://${hostName}:3000/toDoItem/changeStatus`, requestOptions)
-            .then(res => res.json())
-            .then(
-                (result) => {
-                    console.log(result)
-                },
-                (error) => {
-                    console.log(error)
-                }
-            )
-    };
-
-    return <Checkbox toggle label={props.item.name} checked={checked} onChange={handleChange}/>
-}
-
 function getDayName(day) {
     return (new Date(day)).toLocaleDateString('pl-PL', {weekday: 'long'});
 }
@@ -99,9 +76,10 @@ function summary(items) {
 
 function getItemsForDate(items, date) {
     return window._.filter(items, function (i) {
-        return i.dueDate == date.format('YYYY-MM-DD')
+        return i.dueDate === date.format('YYYY-MM-DD')
     });
 }
+
 
 function ToDoList(props) {
     const [error, setError] = React.useState(null)
@@ -131,7 +109,7 @@ function ToDoList(props) {
     } else if (!isLoaded) {
         return <div>Ładowanie...</div>;
     } else if (items) {
-        var date = window.moment().startOf('isoWeek');
+        var date = moment().startOf('isoWeek');
         return <Grid columns={4} celled>
             {window._.times(7, (t) => {
                 if (t !== 0) {
@@ -194,8 +172,10 @@ function TaskList(props) {
     } else {
         return <Grid columns={1}>
             {items.map((item) => {
+                let habitLabel = item.isHabit == 1 ? 'habit' : 'one-time';
+                const label = `[${item.type}][${habitLabel}] ${item.name}`;
                 return <Grid.Column><Checkbox toggle key={item.id}
-                                              label={item.name}
+                                              label={label}
                                               id={item.id}
                                               value='daily'
                                               onChange={handleChange}/></Grid.Column>
